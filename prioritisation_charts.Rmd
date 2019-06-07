@@ -1,0 +1,153 @@
+---
+title: "SR prioritisation charts"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.width = 14, 
+                      fig.height = 8)
+```
+
+
+This is a series of charts showing the different SR options plotted against a number of different metrics.
+
+Note: "No return" refers to where the account manager has not filled in that field, while "missing impact/evidence" are where the account manager explicitly specified that this information is missing. In practice they have quite similar meanings.
+
+```{r import, echo = FALSE, include = FALSE}
+source("charting_functions.R")
+
+chart_data <- readxl::read_excel("QA returns 04062019_for thomas.xlsx", skip = 3) %>%
+  rename_and_filter_data() %>%
+  reorder_categorical_variables()
+
+
+
+```
+
+## Overall chart
+
+This is a chart showing quite a lot of info in one go. How to read this chart:
+First, looking at the larger grid of grey squares, you see impact on outcomes compared to to deliverability risks. Within each subplot, the x axis is strategic alignment, while the y axis shows the strength of evidence. The colour is a RAG rating of the central estimate of the total cost, with reds costing over £5.1m, and greens having a small cost or even net benefit. The size of the bubble is the confidence in the financial impacts. 
+
+In general, the preference is for big green bubbles in the top-right corner of the chart, though some options may be stronger in some areas than others.
+
+To illustrate: In the top-right square of the grid, you have two options, PPS025 and PPS063, which are highly impactful and deliverable. They are also quite strongly strategically aligned (4 and 5 respectively), and have OK evidence to back them up. However, one is expensive, and one is missing costs altogether, so could give some pause.
+
+In comparison, in the box for "medium impact, deliverability: amber", consider option PPS021 (the green bubble). It's medium on most fronts - impact, delivery, strategic alignment and strength of financial impacts, but it's got a minimal cost (or even a benefit).
+
+On the other side, in the bottom left box there are two options: FHQ006 and PPS003. Neither provided information on impact or deliverability, and are poorly aligned to our strategy. In addition, PPS003 is missing evidence, and has indicative costs of over £5m per year. All of this suggests this option may not be worth pursuing
+
+```{r overall, echo = FALSE}
+
+print(all_dimensions_chart(chart_data))
+
+```
+
+You can also make this interactive, though currently this messes up the legends and doesn't plot the squares where there's no data. Mouse over the bubbles to see the option reference and its attributes.
+
+```{r plots, echo=FALSE}
+
+ggplotly(all_dimensions_chart(chart_data))
+
+```
+
+### Some further, simpler plots
+
+First, consider strategic alignment compared to the impact on incomes
+
+```{r str_vs_imp, echo = FALSE}
+ggplotly(strategic_alignment_vs_impact(chart_data), tooltip = "text")
+
+```
+
+Looking at the bottom-left corner, the following options have low (1 or 2) strategic alignment, and are missing information on impact on outcomes:
+
+```{r results = 'asis'}
+bad_options <- chart_data %>% filter(impact_on_outcomes %in% c("missing impact on outcomes",
+                                                               "No return"),
+                                     strategic_alignment %in% c("1: low alignment",
+                                                                "2"))
+
+cat(paste(bad_options$option_ref, collapse = "</br>"))
+
+```
+
+Conversely, in the top-right corner, the following options have high (4 or 5) strategic alignment and a medium to high impact on outcomes:
+
+```{r results = 'asis'}
+good_options <- chart_data %>% filter(impact_on_outcomes %in% c("high impact on outcomes",
+                                                               "medium impact"),
+                                     strategic_alignment %in% c("5: high alignment",
+                                                                "4"))
+
+cat(paste(good_options$option_ref, collapse = "</br>"))
+
+```
+
+Next, consider Strategic alignment compared to deliverability:
+
+```{r str_vs_del}
+ggplotly(strategic_alignment_vs_deliverability(chart_data), tooltip = "text")
+
+```
+
+The following options have low strategic alignment, and either Red or missing deliverability rating:
+
+```{r results = 'asis'}
+bad_options <- chart_data %>% filter(deliverability_risk %in% c("Deliverability: Red",
+                                                               "No return"),
+                                     strategic_alignment %in% c("1: low alignment",
+                                                                "2"))
+
+cat(paste(bad_options$option_ref, collapse = "</br>"))
+
+```
+
+Conversely, the following options have high strategic alignment and amber/green deliverability:
+
+```{r results = 'asis'}
+good_options <- chart_data %>% filter(deliverability_risk %in% c("Deliverability: Green",
+                                                               "Deliverability: Amber"),
+                                     strategic_alignment %in% c("5: high alignment",
+                                                                "4"))
+
+cat(paste(good_options$option_ref, collapse = "</br>"))
+
+```
+
+
+Finally, consider the strength of the evidence compared to impact on outcomes:
+
+```{r ev_vs_imp}
+ggplotly(evidence_vs_impact(chart_data), tooltip = "text")
+
+```
+
+
+The following options are missing both evidence and impacts on outcomes:
+
+
+```{r results = 'asis'}
+bad_options <- chart_data %>% filter(impact_on_outcomes %in% c("missing impact on outcomes",
+                                                               "No return"),
+                                     evidence %in% c("No return",
+                                                     "Missing evidence"))
+
+cat(paste(bad_options$option_ref, collapse = "</br>"))
+
+```
+
+Conversely the following have medium/high impacts on outcomes, and OK or robust evidence:
+
+```{r results = 'asis'}
+good_options <- chart_data %>% filter(impact_on_outcomes %in% c("high impact on outcomes",
+                                                               "medium impact"),
+                                      evidence %in% c("OK evidence",
+                                                      "Robust evidence"))
+
+cat(paste(good_options$option_ref, collapse = "</br>"))
+
+```

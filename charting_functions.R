@@ -1,8 +1,10 @@
-library(plotly)
 library(dplyr)
 library(ggplot2)
+library(plotly)
 library(readxl)
 library(forcats)
+library(ggthemes)
+library(ggrepel)
 
 
 rename_and_filter_data <- function(chart_data) {
@@ -11,8 +13,9 @@ rename_and_filter_data <- function(chart_data) {
 # Follow the pattern below to add columns where necessary:
 # select(new_variable = `old variable`)
   chart_data %>%
-    select(option_description = `Option Description`,
-           impact = `3. Impact on outcomes (scale)`,
+    select(option_ref = `Option Reference Number\r\n(hide col before sharing)`,
+           option_description = `Option Description`,
+           impact_on_outcomes = `3. Impact on outcomes (scale)`,
            financial_impacts = `1. Financial impacts`,
            strategic_alignment = `2. Strategic alignment (or other political priority)`,
            deliverability_risk = `5. Deliverability risk is`,
@@ -26,60 +29,149 @@ reorder_categorical_variables <- function(chart_data) {
   # Generally useful to do in ascending order. Note that facet_grid outputs the y axis in reverse order,
   # so use forcats::fct_rev to reverse the order
   
+  
   chart_data %>%
-    mutate(evidence = factor(evidence,
-                             levels = c("0",
-                                        "missing (Red RAG rating)",
-                                        "OK (Amber RAG rating)",
-                                        "robust (green RAG rating)")),
-    deliverability_risk = factor(deliverability_risk, 
-                                 levels = c("0",
-                                            "Red RAG rating",
-                                            "Amber RAG rating",
-                                            "Green RAG rating")),
+    mutate(evidence = recode_factor(evidence,
+                                    "0" = "No return",
+                                    "missing (Red RAG rating)" = "Missing evidence",
+                                    "OK (Amber RAG rating)" = "OK evidence",
+                                    "robust (green RAG rating)" = "Robust evidence"),
+    deliverability_risk = recode_factor(deliverability_risk, 
+                                        "0" = "No return",
+                                        "Red RAG rating" = "Deliverability: Red",
+                                        "Amber RAG rating" = "Deliverability: Amber",
+                                        "Green RAG rating" = "Deliverability: Green"),
     financial_impacts = factor(financial_impacts,
                                levels = c("are missing",
                                           "are indicative",
                                           "are robust")),
-    impact = factor(impact,
-                    levels = c("0",
-                               "missing",
-                               "low",
-                               "medium",
-                               "high")),
-    total_cost = factor(total_cost,
-                        levels = c("0",
-                                   "Less than £1m per year / a net benefit",
-                                   "Between £1.1m and £5m per year",
-                                   "More than £5.1m per year"))
+    impact_on_outcomes = recode_factor(impact_on_outcomes,
+                           "0" = "No return",
+                           "missing" = "missing impact on outcomes",
+                           "low" = "low impact",
+                           "medium" = "medium impact",
+                           "high" = "high impact on outcomes"),
+    total_cost = recode_factor(total_cost,
+                               "0" = "No return",
+                               "More than £5.1m per year" = "More than £5.1m per year",
+                               "Between £1.1m and £5m per year" = "Between £1.1m and £5m per year",
+                               "Less than £1m per year / a net benefit" = "Less than £1m per year / a net benefit"),
+    strategic_alignment = recode_factor(strategic_alignment,
+                                        "1" = "1: low alignment",
+                                        "2" = "2",
+                                        "3" = "3",
+                                        "4" = "4",
+                                        "5" = "5: high alignment")
     
     )
 }
 
-
-# Imprts the data and runs the above functions to clean.
-# Probably want to turn this into a function, but 
-chart_data <- readxl::read_excel("QA returns 04062019_for thomas.xlsx", skip = 3) %>%
-  rename_and_filter_data() %>%
-  reorder_categorical_variables()
-
-
+all_dimensions_chart <- function(chart_data) {
 sr_chart <- ggplot(data = chart_data, 
-                   mapping = aes(x = impact,
+                   mapping = aes(x = strategic_alignment,
                                  y = evidence,
-                                 fill = financial_impacts,
-                                 text = paste("Option name:", option_description))) +
-  geom_point(position = position_jitter(),
-             shape = 16,
-             stroke = 0,
-             mapping = aes(size = total_cost)) +
-  facet_grid(forcats::fct_rev(deliverability_risk) ~ strategic_alignment) +
-  scale_fill_manual(values = c("red",
+                                 text = paste("Option ref:", option_ref))) +
+  geom_point(position = position_jitterdodge(jitter.width = 0.3,
+                                             jitter.height = 0.3,
+                                             dodge.width = 0.75),
+             shape = 21,
+             stroke = 0.3,
+             alpha = 0.5,
+             mapping = aes(fill = total_cost,
+                           size = financial_impacts)) +
+  facet_grid(forcats::fct_rev(deliverability_risk) ~ impact_on_outcomes) +
+  scale_fill_manual(values = c("black",
+                               "red",
                                "orange",
                                "green4")) +
-  theme_clean() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
-# Makes it interactive via plotly
-ggplotly(sr_chart)
+
+}
+
+strategic_alignment_vs_impact <- function(chart_data) {
+  
+  fills <- c("black",
+             "red",
+             "orange",
+             "green4")
+  
+  
+  sr_chart <- ggplot(data = chart_data, 
+         mapping = aes(x = strategic_alignment,
+                       y = impact_on_outcomes,
+                       text = paste("</br>Option ref:", option_ref,
+                                    "</br> Strategic alignment: ", strategic_alignment,
+                                    "</br> impact: ", impact_on_outcomes,
+                                    "</br> financial impact: ", financial_impacts,
+                                    "</br> total cost: " ,total_cost))) +
+    geom_point(position = position_jitterdodge(jitter.width = 0.3,
+                                               jitter.height = 0.3,
+                                               dodge.width = 0.75),
+               shape = 21,
+               stroke = 0.3,
+               alpha = 0.5,
+               mapping = aes(fill = total_cost,
+                             size = financial_impacts)) +
+    scale_fill_manual(values = fills) +
+    ggtitle("Strategic alignment vs impact on outcomes")
+  
+
+}
+
+evidence_vs_impact <- function(chart_data) {
+  
+  fills <- c("black",
+             "red",
+             "orange",
+             "green4")
+  
+  
+  sr_chart <- ggplot(data = chart_data, 
+                     mapping = aes(x = evidence,
+                                   y = impact_on_outcomes,
+                                   text = paste("</br>Option ref:", option_ref,
+                                                "</br> evidence: ", evidence,
+                                                "</br> impact: ", impact_on_outcomes,
+                                                "</br> financial impact: ", financial_impacts,
+                                                "</br> total cost: " ,total_cost))) +
+    geom_point(position = position_jitterdodge(jitter.width = 0.3,
+                                               jitter.height = 0.3,
+                                               dodge.width = 0.75),
+               shape = 21,
+               stroke = 0.3,
+               alpha = 0.5,
+               mapping = aes(fill = total_cost,
+                             size = financial_impacts)) +
+    scale_fill_manual(values = fills) +
+    ggtitle("Evidence vs impact")
+
+}
+
+strategic_alignment_vs_deliverability <- function(chart_data) {
+  fills <- c("black",
+             "red",
+             "orange",
+             "green4")
+  
+  
+  sr_chart <- ggplot(data = chart_data, 
+                     mapping = aes(x = strategic_alignment,
+                                   y = deliverability_risk,
+                                   text = paste("</br>Option ref:", option_ref,
+                                                "</br> strategic alignment: ", strategic_alignment,
+                                                "</br> deliverability: ", deliverability_risk,
+                                                "</br> financial impact: ", financial_impacts,
+                                                "</br> total cost: " ,total_cost))) +
+    geom_point(position = position_jitterdodge(jitter.width = 0.5,
+                                               jitter.height = 0.5,
+                                               dodge.width = 1),
+               shape = 21,
+               stroke = 0.3,
+               alpha = 0.5,
+               mapping = aes(fill = total_cost,
+                             size = financial_impacts)) +
+    scale_fill_manual(values = fills) +
+    ggtitle("Strategic alignment vs deliverability")
+}
 
