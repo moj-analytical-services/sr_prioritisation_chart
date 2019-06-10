@@ -17,12 +17,14 @@ This is a series of charts showing the different SR options plotted against a nu
 Note: "No return" refers to where the account manager has not filled in that field, while "missing impact/evidence" are where the account manager explicitly specified that this information is missing. In practice they have quite similar meanings.
 
 ```{r import, echo = FALSE, include = FALSE}
+
+# Import the data cleaning and charting function code
 source("charting_functions.R")
 
+# Imports the data from the specified file, then selects the relevant columns
 chart_data <- readxl::read_excel("QA returns 04062019_for thomas.xlsx", skip = 3) %>%
-  rename_and_filter_data() %>%
+  rename_and_filter_data(include_only_shortlist = FALSE) %>%
   reorder_categorical_variables()
-
 
 
 ```

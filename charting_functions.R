@@ -7,12 +7,16 @@ library(ggthemes)
 library(ggrepel)
 
 
-rename_and_filter_data <- function(chart_data) {
+
+rename_and_filter_data <- function(chart_data, include_only_shortlist = FALSE) {
 # This takes the raw data, and selects just the columns we'ere interested in.
-# it's easier to work with variable names that are in camel_case, as you don't have to use backticks.
+# it's easier to work with variable names that are in camel_case without spaces,
+# as you don't have to use backticks.
 # Follow the pattern below to add columns where necessary:
-# select(new_variable = `old variable`)
-  chart_data %>%
+# select(new_variable = `old variable`).
+# 
+  
+  output <- chart_data %>%
     select(option_ref = `Option Reference Number\r\n(hide col before sharing)`,
            option_description = `Option Description`,
            impact_on_outcomes = `3. Impact on outcomes (scale)`,
@@ -20,7 +24,12 @@ rename_and_filter_data <- function(chart_data) {
            strategic_alignment = `2. Strategic alignment (or other political priority)`,
            deliverability_risk = `5. Deliverability risk is`,
            evidence = `6. The evidence on outcomes/\r\nperformance is`,
-           total_cost = `12. The total cost (central estimate) is`)
+           total_cost = `12. The total cost (central estimate) is`,
+           include = include)
+  
+  if(include_only_shortlist) {
+    output <- output %>% filter(include == "yes")
+  }
   
 }
 
@@ -65,6 +74,13 @@ reorder_categorical_variables <- function(chart_data) {
     
     )
 }
+
+
+filter_only_shortlist <- function(chart_data) {
+  chart_data %>%
+    filter(include == "yes")
+}
+
 
 all_dimensions_chart <- function(chart_data) {
 sr_chart <- ggplot(data = chart_data, 
