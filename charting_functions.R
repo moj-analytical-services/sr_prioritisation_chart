@@ -8,13 +8,15 @@ library(ggrepel)
 
 
 
-rename_and_filter_data <- function(chart_data, include_only_shortlist = FALSE) {
+rename_and_filter_data <- function(chart_data, shortlist = NULL) {
 # This takes the raw data, and selects just the columns we'ere interested in.
 # it's easier to work with variable names that are in camel_case without spaces,
 # as you don't have to use backticks.
 # Follow the pattern below to add columns where necessary:
 # select(new_variable = `old variable`).
-# 
+# Some of the columns have odd formatting, like carriage returns (see the \r\n) below.
+# To more easily determine how R is determining the column names, read in the file without any formatting,
+# then run names(chart_data)
   
   output <- chart_data %>%
     select(option_ref = `Option Reference Number\r\n(hide col before sharing)`,
@@ -24,11 +26,16 @@ rename_and_filter_data <- function(chart_data, include_only_shortlist = FALSE) {
            strategic_alignment = `2. Strategic alignment (or other political priority)`,
            deliverability_risk = `5. Deliverability risk is`,
            evidence = `6. The evidence on outcomes/\r\nperformance is`,
-           total_cost = `12. The total cost (central estimate) is`,
-           include = include)
+           total_cost = `12. The total cost (central estimate) is`) %>%
+    filter(!is.na(option_ref),
+           option_description != "Option Description")
   
-  if(include_only_shortlist) {
-    output <- output %>% filter(include == "yes")
+  
+  if(!is.null(shortlist)) {
+    output <- output %>% filter(option_ref %in% shortlist)
+  }
+  else {
+    output
   }
   
 }
@@ -42,30 +49,39 @@ reorder_categorical_variables <- function(chart_data) {
   chart_data %>%
     mutate(evidence = recode_factor(evidence,
                                     "0" = "No return",
+                                    .missing = "No return",
                                     "missing (Red RAG rating)" = "Missing evidence",
                                     "OK (Amber RAG rating)" = "OK evidence",
                                     "robust (green RAG rating)" = "Robust evidence"),
     deliverability_risk = recode_factor(deliverability_risk, 
                                         "0" = "No return",
+                                        .missing = "No return",
                                         "Red RAG rating" = "Deliverability: Red",
                                         "Amber RAG rating" = "Deliverability: Amber",
                                         "Green RAG rating" = "Deliverability: Green"),
-    financial_impacts = factor(financial_impacts,
-                               levels = c("are missing",
-                                          "are indicative",
-                                          "are robust")),
+    financial_impacts = recode_factor(financial_impacts,
+                                      "0" = "No return for financial impacts",
+                                      .missing = "No return for financial impacts",
+                                      "are missing" = "Financial impacts are missing",
+                                      "are indicative" = "Financial impacts are indicative",
+                                      "are robust" = "Financial impacts are robust"),
     impact_on_outcomes = recode_factor(impact_on_outcomes,
                            "0" = "No return",
+                           .missing = "No return",
                            "missing" = "missing impact on outcomes",
                            "low" = "low impact",
                            "medium" = "medium impact",
                            "high" = "high impact on outcomes"),
     total_cost = recode_factor(total_cost,
                                "0" = "No return",
+                               .missing = "No return",
                                "More than £5.1m per year" = "More than £5.1m per year",
                                "Between £1.1m and £5m per year" = "Between £1.1m and £5m per year",
                                "Less than £1m per year / a net benefit" = "Less than £1m per year / a net benefit"),
     strategic_alignment = recode_factor(strategic_alignment,
+                                        "0" = "No return",
+                                        .missing = "No return",
+                                        .default = "No return",
                                         "1" = "1: low alignment",
                                         "2" = "2",
                                         "3" = "3",
@@ -75,11 +91,6 @@ reorder_categorical_variables <- function(chart_data) {
     )
 }
 
-
-filter_only_shortlist <- function(chart_data) {
-  chart_data %>%
-    filter(include == "yes")
-}
 
 
 all_dimensions_chart <- function(chart_data) {
@@ -160,7 +171,7 @@ evidence_vs_impact <- function(chart_data) {
                mapping = aes(fill = total_cost,
                              size = financial_impacts)) +
     scale_fill_manual(values = fills) +
-    ggtitle("Evidence vs impact")
+    ggtitle("Evidence vs impact on outcomes")
 
 }
 
@@ -179,9 +190,9 @@ strategic_alignment_vs_deliverability <- function(chart_data) {
                                                 "</br> deliverability: ", deliverability_risk,
                                                 "</br> financial impact: ", financial_impacts,
                                                 "</br> total cost: " ,total_cost))) +
-    geom_point(position = position_jitterdodge(jitter.width = 0.5,
-                                               jitter.height = 0.5,
-                                               dodge.width = 1),
+    geom_point(position = position_jitterdodge(jitter.width = 0.3,
+                                               jitter.height = 0.3,
+                                               dodge.width = 0.75),
                shape = 21,
                stroke = 0.3,
                alpha = 0.5,
@@ -191,3 +202,9 @@ strategic_alignment_vs_deliverability <- function(chart_data) {
     ggtitle("Strategic alignment vs deliverability")
 }
 
+chart_data <- s3tools::read_using(readxl::read_excel,
+                                  "alpha-fact/prioritisation_charts/SR Option Template part B collator v9.xlsm",
+                                  sheet = "Options Scorecard",
+                                  skip = 6) %>%
+  rename_and_filter_data() %>%
+  reorder_categorical_variables()
