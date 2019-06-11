@@ -18,12 +18,17 @@ Note: "No return" refers to where the account manager has not filled in that fie
 
 ```{r import, echo = FALSE, include = FALSE}
 
+library(DT) # Pretty tables
+
 # Import the data cleaning and charting function code
 source("charting_functions.R")
 
 # Imports the data from the specified file, then selects the relevant columns
-chart_data <- readxl::read_excel("QA returns 04062019_for thomas.xlsx", skip = 3) %>%
-  rename_and_filter_data(include_only_shortlist = FALSE) %>%
+chart_data <- s3tools::read_using(readxl::read_excel,
+                                  "alpha-fact/prioritisation_charts/SR Option Template part B collator v9.xlsm",
+                                 sheet = "Options Scorecard",
+                                 skip = 6) %>%
+  rename_and_filter_data() %>% # this function has an optional "shortlist" parameter, which should be a vector of option references. If included, the data will be filtered to just those options.
   reorder_categorical_variables()
 
 
@@ -73,7 +78,7 @@ bad_options <- chart_data %>% filter(impact_on_outcomes %in% c("missing impact o
                                      strategic_alignment %in% c("1: low alignment",
                                                                 "2"))
 
-cat(paste(bad_options$option_ref, collapse = "</br>"))
+DT::datatable(bad_options)
 
 ```
 
@@ -85,7 +90,7 @@ good_options <- chart_data %>% filter(impact_on_outcomes %in% c("high impact on 
                                      strategic_alignment %in% c("5: high alignment",
                                                                 "4"))
 
-cat(paste(good_options$option_ref, collapse = "</br>"))
+DT::datatable(good_options)
 
 ```
 
@@ -104,7 +109,7 @@ bad_options <- chart_data %>% filter(deliverability_risk %in% c("Deliverability:
                                      strategic_alignment %in% c("1: low alignment",
                                                                 "2"))
 
-cat(paste(bad_options$option_ref, collapse = "</br>"))
+DT::datatable(bad_options)
 
 ```
 
@@ -116,7 +121,7 @@ good_options <- chart_data %>% filter(deliverability_risk %in% c("Deliverability
                                      strategic_alignment %in% c("5: high alignment",
                                                                 "4"))
 
-cat(paste(good_options$option_ref, collapse = "</br>"))
+DT::datatable(good_options)
 
 ```
 
@@ -138,7 +143,7 @@ bad_options <- chart_data %>% filter(impact_on_outcomes %in% c("missing impact o
                                      evidence %in% c("No return",
                                                      "Missing evidence"))
 
-cat(paste(bad_options$option_ref, collapse = "</br>"))
+DT::datatable(bad_options)
 
 ```
 
@@ -150,6 +155,6 @@ good_options <- chart_data %>% filter(impact_on_outcomes %in% c("high impact on 
                                       evidence %in% c("OK evidence",
                                                       "Robust evidence"))
 
-cat(paste(good_options$option_ref, collapse = "</br>"))
+DT::datatable(good_options)
 
 ```
