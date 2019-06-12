@@ -91,6 +91,16 @@ reorder_categorical_variables <- function(chart_data) {
     )
 }
 
+import_chart_data <- function(s3_path, shortlist = NULL) {
+  # reads in data from a specified path in s3, then cleans it using the cleaning functions above
+  chart_data <- s3tools::read_using(readxl::read_excel,
+                                    s3_path,
+                                    sheet = "Options Scorecard",
+                                    skip = 6) %>%
+    rename_and_filter_data(shortlist) %>% # this function has an optional "shortlist" parameter, which should be a vector of option references. If included, the data will be filtered to just those options.
+    reorder_categorical_variables()
+  
+}
 
 
 all_dimensions_chart <- function(chart_data) {

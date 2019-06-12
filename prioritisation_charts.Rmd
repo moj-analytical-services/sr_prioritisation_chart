@@ -34,12 +34,8 @@ options(DT.options = list(pageLength = 5,
 
 
 # Imports the data from the specified file, then selects the relevant columns
-chart_data <- s3tools::read_using(readxl::read_excel,
-                                  "alpha-fact/prioritisation_charts/SR Option Template part B collator v9.xlsm",
-                                  sheet = "Options Scorecard",
-                                  skip = 6) %>%
-  rename_and_filter_data() %>% # this function has an optional "shortlist" parameter, which should be a vector of option references. If included, the data will be filtered to just those options.
-  reorder_categorical_variables()
+chart_data <- import_chart_data("alpha-fact/prioritisation_charts/SR Option Template part B collator v9.xlsm",
+                                shortlist = NULL)
 
 
 ```
@@ -178,6 +174,7 @@ DT::datatable(good_options)
 ## Overall chart
 
 This is a chart showing quite a lot of info in one go. How to read this chart:
+
 First, looking at the larger grid of grey squares, you see impact on outcomes compared to to deliverability risks. Within each subplot, the x axis is strategic alignment, while the y axis shows the strength of evidence. The colour is a RAG rating of the central estimate of the total cost, with reds costing over £5.1m, and greens having a small cost or even net benefit. The size of the bubble is the confidence in the financial impacts. 
 
 In general, the preference is for big green bubbles in the top-right corner of the chart, though some options may be stronger in some areas than others.
