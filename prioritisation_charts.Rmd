@@ -34,7 +34,7 @@ options(DT.options = list(pageLength = 5,
 
 
 # Imports the data from the specified file, then selects the relevant columns
-chart_data <- import_chart_data("alpha-fact/prioritisation_charts/SR Option Template part B collator v9.xlsm",
+chart_data <- import_chart_data("alpha-fact/prioritisation_charts/SR Option Template part B collator v11.xlsm",
                                 shortlist = NULL)
 
 
