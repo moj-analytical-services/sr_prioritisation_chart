@@ -3,8 +3,7 @@ library(ggplot2)
 library(plotly)
 library(readxl)
 library(forcats)
-library(ggthemes)
-library(ggrepel)
+library(DT)
 
 
 
@@ -48,40 +47,40 @@ reorder_categorical_variables <- function(chart_data) {
   
   chart_data %>%
     mutate(evidence = recode_factor(evidence,
-                                    "0" = "No return",
-                                    .missing = "No return",
+                                    "0" = "Not provided",
+                                    .missing = "Not provided",
                                     "missing (Red RAG rating)" = "Missing evidence",
                                     "OK (Amber RAG rating)" = "OK evidence",
                                     "robust (green RAG rating)" = "Robust evidence"),
            deliverability_risk = recode_factor(deliverability_risk, 
-                                               "0" = "No return",
-                                               .missing = "No return",
+                                               "0" = "Not provided",
+                                               .missing = "Not provided",
                                                "Red RAG rating" = "Deliverability: Red",
                                                "Amber RAG rating" = "Deliverability: Amber",
                                                "Green RAG rating" = "Deliverability: Green"),
            financial_impacts = recode_factor(financial_impacts,
-                                             "0" = "No return for financial impacts",
-                                             .missing = "No return for financial impacts",
+                                             "0" = "Financial impacts not provided",
+                                             .missing = "Financial impacts not provided",
                                              "are missing" = "Financial impacts are missing",
                                              "are indicative" = "Financial impacts are indicative",
                                              "are robust" = "Financial impacts are robust"),
            impact_on_outcomes = recode_factor(impact_on_outcomes,
-                                              "0" = "No return",
-                                              .missing = "No return",
+                                              "0" = "Not provided",
+                                              .missing = "Not provided",
                                               "missing" = "missing impact on outcomes",
                                               "low" = "low impact",
                                               "medium" = "medium impact",
                                               "high" = "high impact on outcomes"),
            total_cost = recode_factor(total_cost,
-                                      "0" = "No return",
-                                      .missing = "No return",
+                                      "0" = "Not provided",
+                                      .missing = "Not provided",
                                       "More than £5.1m per year" = "More than £5.1m per year",
                                       "Between £1.1m and £5m per year" = "Between £1.1m and £5m per year",
                                       "Less than £1m per year / a net benefit" = "Less than £1m per year / a net benefit"),
            strategic_alignment = recode_factor(strategic_alignment,
-                                               "0" = "No return",
-                                               .missing = "No return",
-                                               .default = "No return",
+                                               "0" = "Not provided",
+                                               .missing = "Not provided",
+                                               .default = "Not provided",
                                                "1" = "1: low alignment",
                                                "2" = "2",
                                                "3" = "3",

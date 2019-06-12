@@ -47,7 +47,7 @@ chart_data <- import_chart_data("alpha-fact/prioritisation_charts/SR Option Temp
 
 This is a series of charts showing the different SR options plotted against a number of different metrics.
 
-Note: "No return" refers to where the account manager has not filled in that field, while "missing impact/evidence" are where the account manager explicitly specified that this information is missing. In practice they have quite similar meanings.
+Note: "Not provided" refers to where the account manager has not filled in that field, while "missing impact/evidence" are where the account manager explicitly specified that this information is missing. In practice they have quite similar meanings.
 
 
 ## Frequencies
@@ -85,7 +85,7 @@ Looking at the bottom-left corner, the following options have low (1 or 2) strat
 
 ```{r results = 'asis'}
 bad_options <- chart_data %>% filter(impact_on_outcomes %in% c("missing impact on outcomes",
-                                                               "No return"),
+                                                               "Not provided"),
                                      strategic_alignment %in% c("1: low alignment",
                                                                 "2"))
 
@@ -116,7 +116,7 @@ The following options have low strategic alignment, and either Red or missing de
 
 ```{r results = 'asis'}
 bad_options <- chart_data %>% filter(deliverability_risk %in% c("Deliverability: Red",
-                                                                "No return"),
+                                                                "Not provided"),
                                      strategic_alignment %in% c("1: low alignment",
                                                                 "2"))
 
@@ -150,8 +150,8 @@ The following options are missing both evidence and impacts on outcomes:
 
 ```{r results = 'asis'}
 bad_options <- chart_data %>% filter(impact_on_outcomes %in% c("missing impact on outcomes",
-                                                               "No return"),
-                                     evidence %in% c("No return",
+                                                               "Not provided"),
+                                     evidence %in% c("Not provided",
                                                      "Missing evidence"))
 
 DT::datatable(bad_options)
