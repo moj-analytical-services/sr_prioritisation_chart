@@ -6,7 +6,16 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-# This sets global options for chunks of R code, to set a standard plot size and suppress output of code and warnings.
+
+# This chunk of RMarkdown code has all the code for setting up the project
+
+# Import the data cleaning and charting function code
+source("charting_functions.R")
+
+# DT is a package to make pretty interactive tables
+library(DT)
+
+# This sets global options for chunks of R code in this file, to set a standard plot size and suppress output of code and warnings.
 knitr::opts_chunk$set(echo = FALSE,
                       message = FALSE,
                       warning = FALSE,
@@ -20,10 +29,23 @@ options(DT.options = list(pageLength = 5,
                           autoWidth = TRUE,
                           scrollX = TRUE, 
                           order = list(list(1,"asc")), # sort by option_ref
-                          columnDefs = list(list(width = '300px', targets = 2)) # widen the option_description box
-                          )
-        )
+                          columnDefs = list(list(width = '300px', targets = 2))) # widen the option_description box
+)
+
+
+# Imports the data from the specified file, then selects the relevant columns
+chart_data <- s3tools::read_using(readxl::read_excel,
+                                  "alpha-fact/prioritisation_charts/SR Option Template part B collator v9.xlsm",
+                                  sheet = "Options Scorecard",
+                                  skip = 6) %>%
+  rename_and_filter_data() %>% # this function has an optional "shortlist" parameter, which should be a vector of option references. If included, the data will be filtered to just those options.
+  reorder_categorical_variables()
+
+
 ```
+
+
+
 
 # Introduction {.tabset}
 
@@ -31,23 +53,6 @@ This is a series of charts showing the different SR options plotted against a nu
 
 Note: "No return" refers to where the account manager has not filled in that field, while "missing impact/evidence" are where the account manager explicitly specified that this information is missing. In practice they have quite similar meanings.
 
-```{r import, echo = FALSE, include = FALSE}
-
-library(DT) # Pretty tables
-
-
-# Import the data cleaning and charting function code
-source("charting_functions.R")
-
-# Imports the data from the specified file, then selects the relevant columns
-chart_data <- s3tools::read_using(readxl::read_excel,
-                                  "alpha-fact/prioritisation_charts/SR Option Template part B collator v9.xlsm",
-                                 sheet = "Options Scorecard",
-                                 skip = 6) %>%
-  rename_and_filter_data() %>% # this function has an optional "shortlist" parameter, which should be a vector of option references. If included, the data will be filtered to just those options.
-  reorder_categorical_variables()
-
-```
 
 ## Frequencies
 
@@ -96,9 +101,9 @@ Conversely, in the top-right corner, the following options have high (4 or 5) st
 
 ```{r results = 'asis'}
 good_options <- chart_data %>% filter(impact_on_outcomes %in% c("high impact on outcomes",
-                                                               "medium impact"),
-                                     strategic_alignment %in% c("5: high alignment",
-                                                                "4"))
+                                                                "medium impact"),
+                                      strategic_alignment %in% c("5: high alignment",
+                                                                 "4"))
 
 DT::datatable(good_options)
 
@@ -115,7 +120,7 @@ The following options have low strategic alignment, and either Red or missing de
 
 ```{r results = 'asis'}
 bad_options <- chart_data %>% filter(deliverability_risk %in% c("Deliverability: Red",
-                                                               "No return"),
+                                                                "No return"),
                                      strategic_alignment %in% c("1: low alignment",
                                                                 "2"))
 
@@ -127,9 +132,9 @@ Conversely, the following options have high strategic alignment and amber/green 
 
 ```{r results = 'asis'}
 good_options <- chart_data %>% filter(deliverability_risk %in% c("Deliverability: Green",
-                                                               "Deliverability: Amber"),
-                                     strategic_alignment %in% c("5: high alignment",
-                                                                "4"))
+                                                                 "Deliverability: Amber"),
+                                      strategic_alignment %in% c("5: high alignment",
+                                                                 "4"))
 
 DT::datatable(good_options, options = list(autoWidth = TRUE))
 
@@ -161,7 +166,7 @@ Conversely the following have medium/high impacts on outcomes, and OK or robust 
 
 ```{r results = 'asis'}
 good_options <- chart_data %>% filter(impact_on_outcomes %in% c("high impact on outcomes",
-                                                               "medium impact"),
+                                                                "medium impact"),
                                       evidence %in% c("OK evidence",
                                                       "Robust evidence"))
 
