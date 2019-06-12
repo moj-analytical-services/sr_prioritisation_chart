@@ -23,12 +23,14 @@ recodes and reorders the variables, such that the categories are presented in th
 
 #### Charts
 
-There are four specified charts:
+There are three types of charts:
 
-1. An overall chart that plots all dimensions, using a facet grid to allow two levels of X/Y coordinates.
-2. Strategic alignment vs deliverability
-3. Evidence vs Impact on outcomes
-4. Strategic alignment vs impact on outcomes
+1. An overall chart that plots all dimensions, using a facet grid to allow two levels of X/Y coordinates. This is created via the "all_dimensions_chart" function
+2. Frequency charts of the different options. These are created by the frequency_chart function, with the field you want to plot as a parameter. Note that it the field variable should be input without quotes, so `frequency_chart(chart_data, evidence)` rather than `frequency_chart(chart_data, "evidence")
+3. Bubble charts showing pairwise comparisons between two criteria. Currently these are separate functions despite having largely identical code. Currently using:
+    a. Strategic alignment vs deliverability
+    b. Evidence vs Impact on outcomes
+    c. Strategic alignment vs impact on outcomes
 
 
 ## Prioritisation_charts.Rmd
@@ -43,5 +45,5 @@ To generate a report:
 2. Upload the current version of the Part B collator to Amazon S3
 3. Change the path in line 25 of prioritisation_charts.Rmd to direct to the new file
 4. Click "knit" to knit the RMarkdown and turn into an HTML document
-5. To download, in the Files pane, tick the newly-generated prioritisation_charts.html, click More --> Explort...
+5. To download, in the Files pane, tick the newly-generated prioritisation_charts.html, click More --> Export...
 
