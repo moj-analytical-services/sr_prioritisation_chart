@@ -116,6 +116,7 @@ sr_chart <- ggplot(data = chart_data,
 
 }
 
+
 strategic_alignment_vs_impact <- function(chart_data) {
   
   fills <- c("black",
@@ -202,9 +203,12 @@ strategic_alignment_vs_deliverability <- function(chart_data) {
     ggtitle("Strategic alignment vs deliverability")
 }
 
-chart_data <- s3tools::read_using(readxl::read_excel,
-                                  "alpha-fact/prioritisation_charts/SR Option Template part B collator v9.xlsm",
-                                  sheet = "Options Scorecard",
-                                  skip = 6) %>%
-  rename_and_filter_data() %>%
-  reorder_categorical_variables()
+frequency_chart <- function(chart_data, column) {
+  # Plots a simple bar chart, with a specified column as the x value.
+  
+  column <- enquo(column)
+  ggplot(chart_data) + 
+    geom_bar(aes(x = !!column))
+  
+}
+

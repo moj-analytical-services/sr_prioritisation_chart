@@ -1,16 +1,31 @@
 ---
 title: "SR prioritisation charts"
-output: html_document
+output: 
+  html_document:
+    toc: true
 ---
 
 ```{r setup, include=FALSE}
+# This sets global options for chunks of R code, to set a standard plot size and suppress output of code and warnings.
 knitr::opts_chunk$set(echo = FALSE,
                       message = FALSE,
                       warning = FALSE,
                       fig.width = 14, 
                       fig.height = 8)
+
+
+# Global options for formatting tables
+
+options(DT.options = list(pageLength = 5,
+                          autoWidth = TRUE,
+                          scrollX = TRUE, 
+                          order = list(list(1,"asc")), # sort by option_ref
+                          columnDefs = list(list(width = '300px', targets = 2)) # widen the option_description box
+                          )
+        )
 ```
 
+# Introduction {.tabset}
 
 This is a series of charts showing the different SR options plotted against a number of different metrics.
 
@@ -19,6 +34,7 @@ Note: "No return" refers to where the account manager has not filled in that fie
 ```{r import, echo = FALSE, include = FALSE}
 
 library(DT) # Pretty tables
+
 
 # Import the data cleaning and charting function code
 source("charting_functions.R")
@@ -31,37 +47,31 @@ chart_data <- s3tools::read_using(readxl::read_excel,
   rename_and_filter_data() %>% # this function has an optional "shortlist" parameter, which should be a vector of option references. If included, the data will be filtered to just those options.
   reorder_categorical_variables()
 
+```
+
+## Frequencies
+
+These tables show the frequencies of each of the evaluation criteria.
+
+``` {r freq}
+
+print(frequency_chart(chart_data, impact_on_outcomes))
+
+print(frequency_chart(chart_data, financial_impacts))
+
+print(frequency_chart(chart_data, strategic_alignment))
+
+print(frequency_chart(chart_data, deliverability_risk))
+
+print(frequency_chart(chart_data, evidence))
+
+print(frequency_chart(chart_data, total_cost))
 
 ```
 
-## Overall chart
+## Pairwise comparisons
 
-This is a chart showing quite a lot of info in one go. How to read this chart:
-First, looking at the larger grid of grey squares, you see impact on outcomes compared to to deliverability risks. Within each subplot, the x axis is strategic alignment, while the y axis shows the strength of evidence. The colour is a RAG rating of the central estimate of the total cost, with reds costing over £5.1m, and greens having a small cost or even net benefit. The size of the bubble is the confidence in the financial impacts. 
-
-In general, the preference is for big green bubbles in the top-right corner of the chart, though some options may be stronger in some areas than others.
-
-To illustrate: In the top-right square of the grid, you have two options, PPS025 and PPS063, which are highly impactful and deliverable. They are also quite strongly strategically aligned (4 and 5 respectively), and have OK evidence to back them up. However, one is expensive, and one is missing costs altogether, so could give some pause.
-
-In comparison, in the box for "medium impact, deliverability: amber", consider option PPS021 (the green bubble). It's medium on most fronts - impact, delivery, strategic alignment and strength of financial impacts, but it's got a minimal cost (or even a benefit).
-
-On the other side, in the bottom left box there are two options: FHQ006 and PPS003. Neither provided information on impact or deliverability, and are poorly aligned to our strategy. In addition, PPS003 is missing evidence, and has indicative costs of over £5m per year. All of this suggests this option may not be worth pursuing
-
-```{r overall, echo = FALSE}
-
-print(all_dimensions_chart(chart_data))
-
-```
-
-You can also make this interactive, though currently this messes up the legends and doesn't plot the squares where there's no data. Mouse over the bubbles to see the option reference and its attributes.
-
-```{r plots, echo=FALSE}
-
-ggplotly(all_dimensions_chart(chart_data))
-
-```
-
-### Some further, simpler plots
+This is a series of charts that show pairwise 
 
 First, consider strategic alignment compared to the impact on incomes
 
@@ -121,7 +131,7 @@ good_options <- chart_data %>% filter(deliverability_risk %in% c("Deliverability
                                      strategic_alignment %in% c("5: high alignment",
                                                                 "4"))
 
-DT::datatable(good_options)
+DT::datatable(good_options, options = list(autoWidth = TRUE))
 
 ```
 
@@ -156,5 +166,33 @@ good_options <- chart_data %>% filter(impact_on_outcomes %in% c("high impact on 
                                                       "Robust evidence"))
 
 DT::datatable(good_options)
+
+```
+
+
+## Overall chart
+
+This is a chart showing quite a lot of info in one go. How to read this chart:
+First, looking at the larger grid of grey squares, you see impact on outcomes compared to to deliverability risks. Within each subplot, the x axis is strategic alignment, while the y axis shows the strength of evidence. The colour is a RAG rating of the central estimate of the total cost, with reds costing over £5.1m, and greens having a small cost or even net benefit. The size of the bubble is the confidence in the financial impacts. 
+
+In general, the preference is for big green bubbles in the top-right corner of the chart, though some options may be stronger in some areas than others.
+
+To illustrate: In the top-right square of the grid, you have two options, PPS025 and PPS063, which are highly impactful and deliverable. They are also quite strongly strategically aligned (4 and 5 respectively), and have OK evidence to back them up. However, one is expensive, and one is missing costs altogether, so could give some pause.
+
+In comparison, in the box for "medium impact, deliverability: amber", consider option PPS021 (the green bubble). It's medium on most fronts - impact, delivery, strategic alignment and strength of financial impacts, but it's got a minimal cost (or even a benefit).
+
+On the other side, in the bottom left box there are two options: FHQ006 and PPS003. Neither provided information on impact or deliverability, and are poorly aligned to our strategy. In addition, PPS003 is missing evidence, and has indicative costs of over £5m per year. All of this suggests this option may not be worth pursuing
+
+```{r overall, echo = FALSE}
+
+print(all_dimensions_chart(chart_data))
+
+```
+
+You can also make this interactive, though currently this messes up the legends and doesn't plot the squares where there's no data. Mouse over the bubbles to see the option reference and its attributes.
+
+```{r plots, echo=FALSE}
+
+ggplotly(all_dimensions_chart(chart_data))
 
 ```
