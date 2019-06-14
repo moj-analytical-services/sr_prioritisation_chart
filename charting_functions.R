@@ -20,12 +20,14 @@ rename_and_filter_data <- function(chart_data, shortlist = NULL) {
   output <- chart_data %>%
     select(option_ref = `Option Reference Number\r\n(hide col before sharing)`,
            option_description = `Option Description`,
-           impact_on_outcomes = `3. Impact on outcomes (scale)`,
-           financial_impacts = `1. Financial impacts`,
-           strategic_alignment = `2. Strategic alignment (or other political priority)`,
-           deliverability_risk = `5. Deliverability risk is`,
-           evidence = `6. The evidence on outcomes/\r\nperformance is`,
-           total_cost = `12. The total cost (central estimate) is`) %>%
+           total_score = `Total score`,
+           impact_on_outcomes = `Impact on outcomes (scale)`,
+           financial_impacts = `Financial impacts`,
+           strategic_alignment = `Strategic alignment (or other political priority) (1-3)`,
+           deliverability_risk = `Deliverability risk is`,
+           evidence = `The evidence on outcomes/\r\nperformance is`,
+           total_cost = `The total cost (central estimate) is`,
+           am_comments=`Info from Ams`) %>%
     filter(!is.na(option_ref),
            option_description != "Option Description")
   
@@ -83,9 +85,7 @@ reorder_categorical_variables <- function(chart_data) {
                                                .default = "Not provided",
                                                "1" = "1: low alignment",
                                                "2" = "2",
-                                               "3" = "3",
-                                               "4" = "4",
-                                               "5" = "5: high alignment")
+                                               "3" = "3: high alignment")
            
     )
 }
@@ -94,7 +94,7 @@ import_chart_data <- function(s3_path, shortlist = NULL) {
   # reads in data from a specified path in s3, then cleans it using the cleaning functions above
   chart_data <- s3tools::read_using(readxl::read_excel,
                                     s3_path,
-                                    sheet = "Options Scorecard",
+                                    sheet = "Options Scorecard (summary)",
                                     skip = 6) %>%
     rename_and_filter_data(shortlist) %>% # this function has an optional "shortlist" parameter, which should be a vector of option references. If included, the data will be filtered to just those options.
     reorder_categorical_variables()

@@ -34,7 +34,7 @@ options(DT.options = list(pageLength = 5,
 
 
 # Imports the data from the specified file, then selects the relevant columns
-chart_data <- import_chart_data("alpha-fact/prioritisation_charts/SR Option Template part B collator v11.xlsm",
+chart_data <- import_chart_data("alpha-fact/prioritisation_charts/SR Option Template part B collator v14.xlsm",
                                 shortlist = NULL)
 
 
@@ -81,25 +81,25 @@ ggplotly(strategic_alignment_vs_impact(chart_data), tooltip = "text")
 
 ```
 
-Looking at the bottom-left corner, the following options have low (1 or 2) strategic alignment, and are missing information on impact on outcomes:
+Looking at the bottom-left corner, the following options have low (1) strategic alignment, and are missing information on impact on outcomes:
 
 ```{r results = 'asis'}
 bad_options <- chart_data %>% filter(impact_on_outcomes %in% c("missing impact on outcomes",
                                                                "Not provided"),
-                                     strategic_alignment %in% c("1: low alignment",
-                                                                "2"))
+                                     strategic_alignment %in% c("1: low alignment"
+                                                                ))
 
 DT::datatable(bad_options)
 
 ```
 
-Conversely, in the top-right corner, the following options have high (4 or 5) strategic alignment and a medium to high impact on outcomes:
+Conversely, in the top-right corner, the following options have high (3) strategic alignment and a medium to high impact on outcomes:
 
 ```{r results = 'asis'}
 good_options <- chart_data %>% filter(impact_on_outcomes %in% c("high impact on outcomes",
                                                                 "medium impact"),
-                                      strategic_alignment %in% c("5: high alignment",
-                                                                 "4"))
+                                      strategic_alignment %in% c("3: high alignment"
+                                                                 ))
 
 DT::datatable(good_options)
 
@@ -117,8 +117,8 @@ The following options have low strategic alignment, and either Red or missing de
 ```{r results = 'asis'}
 bad_options <- chart_data %>% filter(deliverability_risk %in% c("Deliverability: Red",
                                                                 "Not provided"),
-                                     strategic_alignment %in% c("1: low alignment",
-                                                                "2"))
+                                     strategic_alignment %in% c("1: low alignment"
+                                                                ))
 
 DT::datatable(bad_options)
 
@@ -129,8 +129,8 @@ Conversely, the following options have high strategic alignment and amber/green 
 ```{r results = 'asis'}
 good_options <- chart_data %>% filter(deliverability_risk %in% c("Deliverability: Green",
                                                                  "Deliverability: Amber"),
-                                      strategic_alignment %in% c("5: high alignment",
-                                                                 "4"))
+                                      strategic_alignment %in% c("3: high alignment"
+                                                                 ))
 
 DT::datatable(good_options, options = list(autoWidth = TRUE))
 
@@ -179,11 +179,9 @@ First, looking at the larger grid of grey squares, you see impact on outcomes co
 
 In general, the preference is for big green bubbles in the top-right corner of the chart, though some options may be stronger in some areas than others.
 
-To illustrate: In the top-right square of the grid, you have two options, PPS025 and PPS063, which are highly impactful and deliverable. They are also quite strongly strategically aligned (4 and 5 respectively), and have OK evidence to back them up. However, one is expensive, and one is missing costs altogether, so could give some pause.
+To illustrate: In the top-right square of the grid, you have two options, PPS025, PPS026 and PPS027, which are highly impactful and deliverable. They are also quite strongly strategically aligned, and have OK evidence to back them up. However, they are all expensive options.
 
-In comparison, in the box for "medium impact, deliverability: amber", consider option PPS021 (the green bubble). It's medium on most fronts - impact, delivery, strategic alignment and strength of financial impacts, but it's got a minimal cost (or even a benefit).
-
-On the other side, in the bottom left box there are two options: FHQ006 and PPS003. Neither provided information on impact or deliverability, and are poorly aligned to our strategy. In addition, PPS003 is missing evidence, and has indicative costs of over £5m per year. All of this suggests this option may not be worth pursuing
+On the other side, in the left most box under red deliverability, one of the options is CTS115. This does not have information on impact or deliverability and has robust cost estimates of over £5m per year. This may suggest that this option is not worth pursuing.
 
 ```{r overall, echo = FALSE}
 
