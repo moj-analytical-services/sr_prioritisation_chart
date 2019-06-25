@@ -6,9 +6,13 @@ library(forcats)
 library(DT)
 
 
+
+# Data cleaning functions -------------------------------------------------
+
+
 get_shortlist <- function(chart_data) {
-  # Returns chart_data with options flagged for removal filtered out
-  chart_data %>% filter(overall_recommendation != "Flagged for removal")
+  # Returns chart_data with only the shortlisted options
+  chart_data %>% filter(overall_recommendation %in% c("Yes", "Maybe"))
 }
 
 rename_and_filter_data <- function(chart_data, shortlist = FALSE) {
@@ -90,7 +94,10 @@ reorder_categorical_variables <- function(chart_data) {
                                                .default = "Not provided",
                                                "1" = "1: low alignment",
                                                "2" = "2",
-                                               "3" = "3: high alignment")
+                                               "3" = "3: high alignment"),
+           recommendation_is_judgement = recode_factor(recommendation_is_judgement,
+                                                       "*" = "judgement",
+                                                       .missing = "scorecard")
            
     )
 }
@@ -108,8 +115,12 @@ import_chart_data <- function(s3_path, shortlist = NULL) {
 }
 
 
+# charting functions ------------------------------------------------------
+
+
+
 all_dimensions_chart <- function(chart_data) {
-  sr_chart <- ggplot(data = chart_data, 
+  ggplot(data = chart_data, 
                      mapping = aes(x = strategic_alignment,
                                    y = evidence,
                                    text = paste("Option ref:", option_ref))) +
@@ -223,7 +234,11 @@ frequency_chart <- function(chart_data, column) {
   
   column <- enquo(column)
   ggplot(chart_data) + 
-    geom_bar(aes(x = !!column))
+    geom_bar(aes(x = !!column)) +
+    facet_wrap(~recommendation_is_judgement) +
+    theme(axis.text.x = element_text(angle = 30, hjust = 1),
+          axis.title.x = element_blank()) +
+    ggtitle(column)
   
 }
 
