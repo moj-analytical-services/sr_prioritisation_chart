@@ -6,8 +6,12 @@ library(forcats)
 library(DT)
 
 
+get_shortlist <- function(chart_data) {
+  # Returns chart_data with options flagged for removal filtered out
+  chart_data %>% filter(overall_recommendation != "Flagged for removal")
+}
 
-rename_and_filter_data <- function(chart_data, shortlist = NULL) {
+rename_and_filter_data <- function(chart_data, shortlist = FALSE) {
   # This takes the raw data, and selects just the columns we'ere interested in.
   # it's easier to work with variable names that are in camel_case without spaces,
   # as you don't have to use backticks.
@@ -20,20 +24,21 @@ rename_and_filter_data <- function(chart_data, shortlist = NULL) {
   output <- chart_data %>%
     select(option_ref = `Option Reference Number\r\n(hide col before sharing)`,
            option_description = `Option Description`,
-           total_score = `Total score`,
            impact_on_outcomes = `Impact on outcomes (scale)`,
            financial_impacts = `Financial impacts`,
            strategic_alignment = `Strategic alignment (or other political priority) (1-3)`,
            deliverability_risk = `Deliverability risk is`,
            evidence = `The evidence on outcomes/\r\nperformance is`,
            total_cost = `The total cost (central estimate) is`,
-           am_comments=`Info from Ams`) %>%
+           am_comments = `Info from Ams`,
+           overall_recommendation = `Overall Recommendation`,
+           recommendation_is_judgement = `* if judgement`) %>%
     filter(!is.na(option_ref),
            option_description != "Option Description")
   
   
-  if(!is.null(shortlist)) {
-    output <- output %>% filter(option_ref %in% shortlist)
+  if(shortlist) {
+    output <- output %>% get_shortlist()
   }
   else {
     output
@@ -89,6 +94,7 @@ reorder_categorical_variables <- function(chart_data) {
            
     )
 }
+
 
 import_chart_data <- function(s3_path, shortlist = NULL) {
   # reads in data from a specified path in s3, then cleans it using the cleaning functions above

@@ -34,8 +34,8 @@ options(DT.options = list(pageLength = 5,
 
 
 # Imports the data from the specified file, then selects the relevant columns
-chart_data <- import_chart_data("alpha-fact/prioritisation_charts/SR Option Template part B collator v14.xlsm",
-                                shortlist = NULL)
+chart_data <- import_chart_data("alpha-fact/prioritisation_charts/SR Option Template part B collator v19.xlsm",
+                                shortlist = TRUE)
 
 
 ```
@@ -179,7 +179,7 @@ First, looking at the larger grid of grey squares, you see impact on outcomes co
 
 In general, the preference is for big green bubbles in the top-right corner of the chart, though some options may be stronger in some areas than others.
 
-To illustrate: In the top-right square of the grid, you have two options, PPS025, PPS026 and PPS027, which are highly impactful and deliverable. They are also quite strongly strategically aligned, and have OK evidence to back them up. However, they are all expensive options.
+To illustrate: In the top-right square of the grid, you have three options - PPS025, PPS026 and PPS027 - which are highly impactful and deliverable. They are also quite strongly strategically aligned, and have OK evidence to back them up. However, they are all expensive options.
 
 On the other side, in the left most box under red deliverability, one of the options is CTS115. This does not have information on impact or deliverability and has robust cost estimates of over £5m per year. This may suggest that this option is not worth pursuing.
 
