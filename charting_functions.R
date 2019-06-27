@@ -25,7 +25,7 @@ rename_and_filter_data <- function(chart_data, shortlist = FALSE) {
   # To more easily determine how R is determining the column names, read in the file without any formatting,
   # then run names(chart_data)
   
-  chart_data %>%
+  output <- chart_data %>%
     select(option_ref = `Option Reference Number\r\n(hide col before sharing)`,
            type_of_option = `Option is`,
            option_description = `Option Description`,
