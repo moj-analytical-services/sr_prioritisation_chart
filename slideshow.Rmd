@@ -1,0 +1,101 @@
+---
+title: "Prioritisation charts"
+output: powerpoint_presentation
+---
+
+```{r setup, include=FALSE}
+
+# This chunk of RMarkdown code has all the code for setting up the project
+
+# Import the data cleaning and charting function code
+source("charting_functions.R")
+
+# This sets global options for chunks of R code in this file, to set a standard plot size and suppress output of code and warnings.
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.width = 14, 
+                      fig.height = 8)
+
+
+# Global options for formatting tables
+
+options(DT.options = list(pageLength = 5,
+                          autoWidth = TRUE,
+                          scrollX = TRUE, 
+                          order = list(list(1,"asc")), # sort by option_ref
+                          columnDefs = list(list(width = '300px', targets = 2))) # widen the option_description box
+)
+
+
+# Imports the data from the specified file, then selects the relevant columns
+chart_data <- import_chart_data("alpha-fact/prioritisation_charts/SR Option Template part B collator v19.xlsm",
+                                shortlist = TRUE)
+
+
+```
+
+
+# Frequency charts
+
+## Type of option
+
+```{r}
+frequency_chart(chart_data, type_of_option)
+
+```
+
+## Impact on outcomes
+
+``` {r freq}
+
+frequency_chart(chart_data, impact_on_outcomes)
+
+```
+
+
+## Strategic alignment
+
+```{r}
+frequency_chart(chart_data, strategic_alignment)
+```
+
+## Deliverability risk
+
+```{r}
+frequency_chart(chart_data, deliverability_risk)
+```
+
+## Strength of evidence
+
+```{r}
+frequency_chart(chart_data, evidence)
+```
+
+## Total cost
+
+```{r}
+frequency_chart(chart_data, total_cost)
+
+```
+
+## Strategic alignment vs deliverability
+
+```{r}
+strategic_alignment_vs_deliverability(chart_data)
+```
+
+## Savings options
+
+These options are expected to cost less than £1m per year or offer a net benefit
+
+```{r}
+savings_options_chart(chart_data)
+```
+
+## All dimensions chart
+
+```{r}
+all_dimensions_chart(chart_data)
+```
+

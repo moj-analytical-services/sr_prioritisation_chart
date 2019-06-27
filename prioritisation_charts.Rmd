@@ -47,12 +47,14 @@ chart_data <- import_chart_data("alpha-fact/prioritisation_charts/SR Option Temp
 
 This is a series of charts showing the different SR options plotted against a number of different metrics.
 
+This version of this report includes only options that have been given a "Yes" or "Maybe" recommendation.
+
 Note: "Not provided" refers to where the account manager has not filled in that field, while "missing impact/evidence" are where the account manager explicitly specified that this information is missing. In practice they have quite similar meanings.
 
 
 ## Frequencies
 
-These tables show the frequencies of each of the evaluation criteria.
+These tables show the frequencies of each of the evaluation criteria. These charts are split by whether the recommendation was produced through the scorecard, or through judgement.
 
 ``` {r freq}
 

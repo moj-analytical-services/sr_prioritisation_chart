@@ -4,6 +4,7 @@ library(plotly)
 library(readxl)
 library(forcats)
 library(DT)
+library(stringr)
 
 
 
@@ -139,12 +140,14 @@ all_dimensions_chart <- function(chart_data) {
                alpha = 0.5,
                mapping = aes(fill = total_cost,
                              size = financial_impacts)) +
-    facet_grid(forcats::fct_rev(deliverability_risk) ~ impact_on_outcomes) +
+    facet_grid(forcats::fct_rev(deliverability_risk) ~ impact_on_outcomes,
+               labeller = label_wrap_gen(width = 15, multi_line = TRUE)) +
     scale_fill_manual(values = c("black",
                                  "red",
                                  "orange",
                                  "green4")) +
-    theme(axis.text.x = element_text(angle = 90, hjust = 1))
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+    guides(fill = guide_legend(override.aes = list(size=5)))
   
   
 }
@@ -175,7 +178,8 @@ strategic_alignment_vs_impact <- function(chart_data) {
                mapping = aes(fill = total_cost,
                              size = financial_impacts)) +
     scale_fill_manual(values = fills) +
-    ggtitle("Strategic alignment vs impact on outcomes")
+    ggtitle("Strategic alignment vs impact on outcomes") +
+    guides(fill = guide_legend(override.aes = list(size=5)))
   
   
 }
@@ -205,7 +209,8 @@ evidence_vs_impact <- function(chart_data) {
                mapping = aes(fill = total_cost,
                              size = financial_impacts)) +
     scale_fill_manual(values = fills) +
-    ggtitle("Evidence vs impact on outcomes")
+    ggtitle("Evidence vs impact on outcomes") +
+    guides(fill = guide_legend(override.aes = list(size=5)))
   
 }
 
@@ -233,19 +238,58 @@ strategic_alignment_vs_deliverability <- function(chart_data) {
                mapping = aes(fill = total_cost,
                              size = financial_impacts)) +
     scale_fill_manual(values = fills) +
-    ggtitle("Strategic alignment vs deliverability")
+    ggtitle("Strategic alignment vs deliverability") +
+    guides(fill = guide_legend(override.aes = list(size=5)))
 }
+
+savings_options_chart <- function(chart_data) {
+  
+  # As above, but replace financial impacts with evidence
+  
+  fills <- c("red",
+             "orange",
+             "green4")
+  
+  chart_data <- chart_data %>% filter(type_of_option == "likely to save")
+  
+  ggplot(data = chart_data, 
+         mapping = aes(x = strategic_alignment,
+                       y = deliverability_risk,
+                       text = paste("</br>Option ref:", option_ref,
+                                    "</br> strategic alignment: ", strategic_alignment,
+                                    "</br> deliverability: ", deliverability_risk,
+                                    "</br> financial impact: ", financial_impacts,
+                                    "</br> total cost: " ,total_cost))) +
+    geom_point(position = position_jitterdodge(jitter.width = 0.2,
+                                               jitter.height = 0.2,
+                                               dodge.width = 0.5),
+               shape = 21,
+               stroke = 0.3,
+               alpha = 0.5,
+               mapping = aes(size = financial_impacts,
+                             fill = evidence)) +
+    scale_fill_manual(values = fills) +
+    ggtitle("Savings options") +
+    guides(fill = guide_legend(override.aes = list(size=5)))
+}
+
 
 frequency_chart <- function(chart_data, column) {
   # Plots a simple bar chart, with a specified column as the x value.
   
   column <- enquo(column)
+  
+  
   ggplot(chart_data) + 
     geom_bar(aes(x = !!column,
                  fill = !!column)) +
-    theme(axis.text.x = element_text(angle = 30, hjust = 1),
-          axis.title.x = element_blank()) +
-    ggtitle(column) +
+    theme(axis.text.x = element_text(angle = 30,
+                                     hjust = 1,
+                                     size = 20),
+          axis.title.x = element_blank(),
+          plot.title = element_text(size = 35),
+          legend.position = "none") +
+    ggtitle(str_replace_all(quo_name(column), "_", " ")) +
     scale_fill_brewer(palette = "RdYlGn")
   
 }
