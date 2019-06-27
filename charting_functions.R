@@ -25,8 +25,9 @@ rename_and_filter_data <- function(chart_data, shortlist = FALSE) {
   # To more easily determine how R is determining the column names, read in the file without any formatting,
   # then run names(chart_data)
   
-  output <- chart_data %>%
+  chart_data %>%
     select(option_ref = `Option Reference Number\r\n(hide col before sharing)`,
+           type_of_option = `Option is`,
            option_description = `Option Description`,
            impact_on_outcomes = `Impact on outcomes (scale)`,
            financial_impacts = `Financial impacts`,
@@ -97,7 +98,13 @@ reorder_categorical_variables <- function(chart_data) {
                                                "3" = "3: high alignment"),
            recommendation_is_judgement = recode_factor(recommendation_is_judgement,
                                                        "*" = "judgement",
-                                                       .missing = "scorecard")
+                                                       .missing = "scorecard"),
+           type_of_option = recode_factor(type_of_option,
+                                          "0" = "missing",
+                                          .missing = "missing",
+                                          "likely to cost more" = "likely to cost more",
+                                          "invest to save" = "invest to save",
+                                          "likely to save" = "likely to save")
            
     )
 }
@@ -105,10 +112,10 @@ reorder_categorical_variables <- function(chart_data) {
 
 import_chart_data <- function(s3_path, shortlist = NULL) {
   # reads in data from a specified path in s3, then cleans it using the cleaning functions above
-  chart_data <- s3tools::read_using(readxl::read_excel,
-                                    s3_path,
-                                    sheet = "Options Scorecard (summary)",
-                                    skip = 6) %>%
+  s3tools::read_using(readxl::read_excel,
+                      s3_path,
+                      sheet = "Options Scorecard (summary)",
+                      skip = 6) %>%
     rename_and_filter_data(shortlist) %>% # this function has an optional "shortlist" parameter, which should be a vector of option references. If included, the data will be filtered to just those options.
     reorder_categorical_variables()
   
@@ -121,9 +128,9 @@ import_chart_data <- function(s3_path, shortlist = NULL) {
 
 all_dimensions_chart <- function(chart_data) {
   ggplot(data = chart_data, 
-                     mapping = aes(x = strategic_alignment,
-                                   y = evidence,
-                                   text = paste("Option ref:", option_ref))) +
+         mapping = aes(x = strategic_alignment,
+                       y = evidence,
+                       text = paste("Option ref:", option_ref))) +
     geom_point(position = position_jitterdodge(jitter.width = 0.3,
                                                jitter.height = 0.3,
                                                dodge.width = 0.75),
@@ -151,14 +158,14 @@ strategic_alignment_vs_impact <- function(chart_data) {
              "green4")
   
   
-  sr_chart <- ggplot(data = chart_data, 
-                     mapping = aes(x = strategic_alignment,
-                                   y = impact_on_outcomes,
-                                   text = paste("</br>Option ref:", option_ref,
-                                                "</br> Strategic alignment: ", strategic_alignment,
-                                                "</br> impact: ", impact_on_outcomes,
-                                                "</br> financial impact: ", financial_impacts,
-                                                "</br> total cost: " ,total_cost))) +
+  ggplot(data = chart_data, 
+         mapping = aes(x = strategic_alignment,
+                       y = impact_on_outcomes,
+                       text = paste("</br>Option ref:", option_ref,
+                                    "</br> Strategic alignment: ", strategic_alignment,
+                                    "</br> impact: ", impact_on_outcomes,
+                                    "</br> financial impact: ", financial_impacts,
+                                    "</br> total cost: " ,total_cost))) +
     geom_point(position = position_jitterdodge(jitter.width = 0.3,
                                                jitter.height = 0.3,
                                                dodge.width = 0.75),
@@ -181,14 +188,14 @@ evidence_vs_impact <- function(chart_data) {
              "green4")
   
   
-  sr_chart <- ggplot(data = chart_data, 
-                     mapping = aes(x = evidence,
-                                   y = impact_on_outcomes,
-                                   text = paste("</br>Option ref:", option_ref,
-                                                "</br> evidence: ", evidence,
-                                                "</br> impact: ", impact_on_outcomes,
-                                                "</br> financial impact: ", financial_impacts,
-                                                "</br> total cost: " ,total_cost))) +
+  ggplot(data = chart_data, 
+         mapping = aes(x = evidence,
+                       y = impact_on_outcomes,
+                       text = paste("</br>Option ref:", option_ref,
+                                    "</br> evidence: ", evidence,
+                                    "</br> impact: ", impact_on_outcomes,
+                                    "</br> financial impact: ", financial_impacts,
+                                    "</br> total cost: " ,total_cost))) +
     geom_point(position = position_jitterdodge(jitter.width = 0.3,
                                                jitter.height = 0.3,
                                                dodge.width = 0.75),
@@ -209,14 +216,14 @@ strategic_alignment_vs_deliverability <- function(chart_data) {
              "green4")
   
   
-  sr_chart <- ggplot(data = chart_data, 
-                     mapping = aes(x = strategic_alignment,
-                                   y = deliverability_risk,
-                                   text = paste("</br>Option ref:", option_ref,
-                                                "</br> strategic alignment: ", strategic_alignment,
-                                                "</br> deliverability: ", deliverability_risk,
-                                                "</br> financial impact: ", financial_impacts,
-                                                "</br> total cost: " ,total_cost))) +
+  ggplot(data = chart_data, 
+         mapping = aes(x = strategic_alignment,
+                       y = deliverability_risk,
+                       text = paste("</br>Option ref:", option_ref,
+                                    "</br> strategic alignment: ", strategic_alignment,
+                                    "</br> deliverability: ", deliverability_risk,
+                                    "</br> financial impact: ", financial_impacts,
+                                    "</br> total cost: " ,total_cost))) +
     geom_point(position = position_jitterdodge(jitter.width = 0.3,
                                                jitter.height = 0.3,
                                                dodge.width = 0.75),
@@ -234,11 +241,12 @@ frequency_chart <- function(chart_data, column) {
   
   column <- enquo(column)
   ggplot(chart_data) + 
-    geom_bar(aes(x = !!column)) +
-    facet_wrap(~recommendation_is_judgement) +
+    geom_bar(aes(x = !!column,
+                 fill = !!column)) +
     theme(axis.text.x = element_text(angle = 30, hjust = 1),
           axis.title.x = element_blank()) +
-    ggtitle(column)
+    ggtitle(column) +
+    scale_fill_brewer(palette = "RdYlGn")
   
 }
 
