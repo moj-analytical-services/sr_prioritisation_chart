@@ -95,7 +95,7 @@ reorder_categorical_variables <- function(chart_data) {
                                                .missing = "Not provided",
                                                .default = "Not provided",
                                                "1" = "1: low alignment",
-                                               "2" = "2",
+                                               "2" = "2: medium alignment",
                                                "3" = "3: high alignment"),
            recommendation_is_judgement = recode_factor(recommendation_is_judgement,
                                                        "*" = "judgement",
@@ -236,7 +236,7 @@ strategic_alignment_vs_deliverability <- function(chart_data) {
                stroke = 0.3,
                alpha = 0.5,
                mapping = aes(fill = total_cost,
-                             size = financial_impacts)) +
+                             size = evidence)) +
     scale_fill_manual(values = fills) +
     ggtitle("Strategic alignment vs deliverability") +
     guides(fill = guide_legend(override.aes = list(size=5)))
@@ -279,10 +279,14 @@ frequency_chart <- function(chart_data, column) {
   
   column <- enquo(column)
   
-  
-  ggplot(chart_data) + 
+  chart_data %>%
+    count(!!column) %>%
+    mutate(pct = scales::percent(prop.table(n))) %>%
+  ggplot() + 
     geom_bar(aes(x = !!column,
-                 fill = !!column)) +
+                 y = n,
+                 fill = !!column),
+             stat = "identity") +
     theme(axis.text.x = element_text(angle = 30,
                                      hjust = 1,
                                      size = 20),
@@ -290,7 +294,16 @@ frequency_chart <- function(chart_data, column) {
           plot.title = element_text(size = 35),
           legend.position = "none") +
     ggtitle(str_replace_all(quo_name(column), "_", " ")) +
-    scale_fill_brewer(palette = "RdYlGn")
+    scale_fill_manual(values = c("grey",
+                        "red",
+                        "orange",
+                        "green4")) +
+    geom_text(aes(label = pct,
+                  x = !!column,
+                  y = n),
+              nudge_y = -3, #shunt labels to just below the top of the bar
+              colour = "white",
+              size = 10)
   
 }
 
