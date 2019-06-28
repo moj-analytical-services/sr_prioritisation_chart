@@ -1,7 +1,4 @@
 ---
-title: "Analysis of Prioritised Options"
-subtitle: The charts in this slide pack provide an analysis of the 104 options in the “Take forward” list
-
 output: powerpoint_presentation
 ---
 
@@ -31,15 +28,26 @@ options(DT.options = list(pageLength = 5,
 
 
 # Imports the data from the specified file, then selects the relevant columns
-chart_data <- import_chart_data("alpha-fact/prioritisation_charts/SR Option Prioritisation Scorecard v3.xlsb.xlsm",
+
+s3_path <- "alpha-fact/prioritisation_charts/SR Option Prioritisation Scorecard v3.xlsb.xlsm"
+
+chart_data <- import_chart_data(s3_path,
                                 shortlist = TRUE)
 
+unfiltered_chart_data <- import_chart_data(s3_path,
+                                           shortlist = FALSE)
 
 ```
 
 ---
+title: "Analysis of Prioritised Options"
+subtitle: The charts in this slide pack provide an analysis of the options in the “Take forward” list. 24 options in the list had too much missing information so were excluded, leaving a remaining `r nrow(chart_data)` options.
+---
 
-The following charts show how the `r nrow(chart_data)` options in the “take forward list” are distributed under each of the five scorecard criteria:
+
+---
+
+The following charts show how the options in the “take forward list” are distributed under each of the five scorecard criteria:
 
 ## Strategic alignment
 
@@ -77,7 +85,7 @@ frequency_chart(chart_data, total_cost)
 
 ---
 
-The following charts show how the `r nrow(chart_data)` options in the “take forward list” are distributed under a further two criteria:
+The following charts show how the options in the “take forward list” are distributed under a further two criteria:
 
 1) Type of option: Likely to save, invest to save, or likely to cost
 2) Quality of the financial impacts
@@ -102,7 +110,7 @@ strategic_alignment_vs_deliverability(chart_data)
 
 ---
 
-The following chart shows only those `r nrow(chart_data)` options that are categorised as “likely to save” and have therefore automatically been included on the “take forward” list:
+The following chart shows only those options that are categorised as “likely to save” and have therefore automatically been included on the “take forward” list:
 
 ```{r}
 savings_options_chart(chart_data)
@@ -110,7 +118,7 @@ savings_options_chart(chart_data)
 
 ---
 
-The following chart shows all `r nrow(chart_data)` options in the “take forward” plotted against all five criteria used to inform the scorecard, and a further criteria assessing the quality of the financial impacts:
+The following chart shows the options in the “take forward” plotted against all five criteria used to inform the scorecard, and a further criteria assessing the quality of the financial impacts:
 
 ```{r}
 all_dimensions_chart(chart_data)
