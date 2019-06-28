@@ -1,6 +1,6 @@
 ---
 title: "Prioritisation charts"
-output: powerpoint_presentation
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -77,6 +77,11 @@ frequency_chart(chart_data, evidence)
 ```{r}
 frequency_chart(chart_data, total_cost)
 
+```
+## Financial impacts
+
+```{r}
+frequency_chart(chart_data, financial_impacts)
 ```
 
 ## Strategic alignment vs deliverability
