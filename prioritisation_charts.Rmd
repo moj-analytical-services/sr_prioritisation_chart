@@ -34,8 +34,8 @@ options(DT.options = list(pageLength = 5,
 
 
 # Imports the data from the specified file, then selects the relevant columns
-chart_data <- import_chart_data("alpha-fact/prioritisation_charts/SR Option Template part B collator v14.xlsm",
-                                shortlist = NULL)
+chart_data <- import_chart_data("alpha-fact/prioritisation_charts/SR Option Prioritisation Scorecard v3.xlsb.xlsm",
+                                shortlist = TRUE)
 
 
 ```
@@ -47,12 +47,14 @@ chart_data <- import_chart_data("alpha-fact/prioritisation_charts/SR Option Temp
 
 This is a series of charts showing the different SR options plotted against a number of different metrics.
 
+This version of this report includes only options that have been given a "Yes" or "Maybe" recommendation.
+
 Note: "Not provided" refers to where the account manager has not filled in that field, while "missing impact/evidence" are where the account manager explicitly specified that this information is missing. In practice they have quite similar meanings.
 
 
 ## Frequencies
 
-These tables show the frequencies of each of the evaluation criteria.
+These tables show the frequencies of each of the evaluation criteria. These charts are split by whether the recommendation was produced through the scorecard, or through judgement.
 
 ``` {r freq}
 
@@ -179,7 +181,7 @@ First, looking at the larger grid of grey squares, you see impact on outcomes co
 
 In general, the preference is for big green bubbles in the top-right corner of the chart, though some options may be stronger in some areas than others.
 
-To illustrate: In the top-right square of the grid, you have two options, PPS025, PPS026 and PPS027, which are highly impactful and deliverable. They are also quite strongly strategically aligned, and have OK evidence to back them up. However, they are all expensive options.
+To illustrate: In the top-right square of the grid, you have three options - PPS025, PPS026 and PPS027 - which are highly impactful and deliverable. They are also quite strongly strategically aligned, and have OK evidence to back them up. However, they are all expensive options.
 
 On the other side, in the left most box under red deliverability, one of the options is CTS115. This does not have information on impact or deliverability and has robust cost estimates of over £5m per year. This may suggest that this option is not worth pursuing.
 

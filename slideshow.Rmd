@@ -1,0 +1,126 @@
+---
+output: powerpoint_presentation
+---
+
+```{r setup, include=FALSE}
+
+# This chunk of RMarkdown code has all the code for setting up the project
+
+# Import the data cleaning and charting function code
+source("charting_functions.R")
+
+# This sets global options for chunks of R code in this file, to set a standard plot size and suppress output of code and warnings.
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.width = 14, 
+                      fig.height = 8)
+
+
+# Global options for formatting tables
+
+options(DT.options = list(pageLength = 5,
+                          autoWidth = TRUE,
+                          scrollX = TRUE, 
+                          order = list(list(1,"asc")), # sort by option_ref
+                          columnDefs = list(list(width = '300px', targets = 2))) # widen the option_description box
+)
+
+
+# Imports the data from the specified file, then selects the relevant columns
+
+s3_path <- "alpha-fact/prioritisation_charts/SR Option Prioritisation Scorecard v3.xlsb.xlsm"
+
+chart_data <- import_chart_data(s3_path,
+                                shortlist = TRUE)
+
+unfiltered_chart_data <- import_chart_data(s3_path,
+                                           shortlist = FALSE)
+
+```
+
+---
+title: "Analysis of Prioritised Options"
+subtitle: The charts in this slide pack provide an analysis of the options in the “Take forward” list. 24 options in the list had too much missing information so were excluded, leaving a remaining `r nrow(chart_data)` options.
+---
+
+
+---
+
+The following charts show how the options in the “take forward list” are distributed under each of the five scorecard criteria:
+
+## Strategic alignment
+
+```{r}
+frequency_chart(chart_data, strategic_alignment)
+```
+
+## Strength of evidence
+
+```{r}
+frequency_chart(chart_data, evidence)
+```
+
+## Deliverability risk
+
+```{r}
+frequency_chart(chart_data, deliverability_risk)
+```
+
+## Impact on outcomes
+
+``` {r freq}
+
+frequency_chart(chart_data, impact_on_outcomes)
+
+```
+
+
+## Total cost
+
+```{r}
+frequency_chart(chart_data, total_cost)
+
+```
+
+---
+
+The following charts show how the options in the “take forward list” are distributed under a further two criteria:
+
+1) Type of option: Likely to save, invest to save, or likely to cost
+2) Quality of the financial impacts
+
+```{r}
+frequency_chart(chart_data, type_of_option)
+
+```
+
+```{r}
+frequency_chart(chart_data, financial_impacts)
+
+```
+
+---
+
+The following chart shows all `r nrow(chart_data)` options in the “take forward” list plotted against their strategic alignment score and deliverability risk:
+
+```{r}
+strategic_alignment_vs_deliverability(chart_data)
+```
+
+---
+
+The following chart shows only those options that are categorised as “likely to save” and have therefore automatically been included on the “take forward” list:
+
+```{r}
+savings_options_chart(chart_data)
+```
+
+---
+
+The following chart shows the options in the “take forward” plotted against all five criteria used to inform the scorecard, and a further criteria assessing the quality of the financial impacts:
+
+```{r}
+all_dimensions_chart(chart_data)
+```
+
