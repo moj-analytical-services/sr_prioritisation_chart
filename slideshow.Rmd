@@ -29,7 +29,7 @@ options(DT.options = list(pageLength = 5,
 
 # Imports the data from the specified file, then selects the relevant columns
 
-s3_path <- "alpha-fact/prioritisation_charts/SR Option Prioritisation Scorecard v3.xlsb.xlsm"
+s3_path <- "alpha-fact/prioritisation_charts/SR Option Prioritisation Scorecard v5.xlsm"
 
 chart_data <- import_chart_data(s3_path,
                                 shortlist = TRUE)
