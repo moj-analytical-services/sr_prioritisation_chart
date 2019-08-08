@@ -40,6 +40,7 @@ rename_and_filter_data <- function(chart_data, shortlist = FALSE) {
            overall_recommendation = `Overall Recommendation`,
            recommendation_is_judgement = `* if judgement`) %>%
     filter(!is.na(option_ref),
+           option_ref != 0,
            option_description != "Option Description")
   
   
@@ -287,11 +288,9 @@ frequency_chart <- function(chart_data, column) {
                  y = n,
                  fill = !!column),
              stat = "identity") +
-    theme(axis.text.x = element_text(angle = 30,
-                                     hjust = 1,
-                                     size = 20),
+    theme(axis.text.x = element_text(size = 15),
           axis.title.x = element_blank(),
-          plot.title = element_text(size = 35),
+          plot.title = element_text(size = 20),
           legend.position = "none") +
     ggtitle(str_replace_all(quo_name(column), "_", " ")) +
     scale_fill_manual(values = c("grey",
@@ -303,7 +302,8 @@ frequency_chart <- function(chart_data, column) {
                   y = n),
               nudge_y = -3, #shunt labels to just below the top of the bar
               colour = "white",
-              size = 10)
+              size = 5) +
+    scale_x_discrete(labels = function(x) str_wrap(x, width = 15))
   
 }
 
