@@ -2,7 +2,7 @@
 title: "SR prioritisation charts"
 output: 
   html_document:
-    toc: true
+    toc: false
 ---
 
 ```{r setup, include=FALSE}
@@ -34,7 +34,7 @@ options(DT.options = list(pageLength = 5,
 
 
 # Imports the data from the specified file, then selects the relevant columns
-chart_data <- import_chart_data("alpha-fact/prioritisation_charts/SR Option Prioritisation Scorecard v3.xlsb.xlsm",
+chart_data <- import_chart_data("alpha-fact/prioritisation_charts/SR Option Prioritisation Scorecard v6.xlsm",
                                 shortlist = TRUE)
 
 
