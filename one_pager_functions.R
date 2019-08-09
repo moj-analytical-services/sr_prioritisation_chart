@@ -56,14 +56,3 @@ one_pager_chart <- function(chart_data) {
                nrow = 1)
   
 }
-
-
-
-financial_impacts <- get_financial_impacts("alpha-fact/prioritisation_charts/SR Option Template part B collator v26.xlsm")
-
-option_categories <- get_options_categories("alpha-fact/prioritisation_charts/option groupings v2.csv")
-
-chart_data <- import_chart_data("alpha-fact/prioritisation_charts/SR Option Prioritisation Scorecard v6.xlsm",
-                                shortlist = F) %>%
-  inner_join(financial_impacts, by = "option_ref") %>%
-  inner_join(option_categories, by = "option_ref")

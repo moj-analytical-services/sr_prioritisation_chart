@@ -1,0 +1,47 @@
+---
+output: powerpoint_presentation
+---
+
+```{r setup, include=FALSE}
+
+# This chunk of RMarkdown code has all the code for setting up the project
+
+# Import the data cleaning and charting function code
+source("charting_functions.R")
+source("one_pager_functions.R")
+
+# This sets global options for chunks of R code in this file, to set a standard plot size and suppress output of code and warnings.
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.width = 14, 
+                      fig.height = 8)
+
+
+# Global options for formatting tables
+
+options(DT.options = list(pageLength = 5,
+                          autoWidth = TRUE,
+                          scrollX = TRUE, 
+                          order = list(list(1,"asc")), # sort by option_ref
+                          columnDefs = list(list(width = '300px', targets = 2))) # widen the option_description box
+)
+
+
+# Imports the data from the specified file, then selects the relevant columns
+
+financial_impacts <- get_financial_impacts("alpha-fact/prioritisation_charts/SR Option Template part B collator v26.xlsm")
+
+option_categories <- get_options_categories("alpha-fact/prioritisation_charts/option groupings v2.csv")
+
+chart_data <- import_chart_data("alpha-fact/prioritisation_charts/SR Option Prioritisation Scorecard v6.xlsm",
+                                shortlist = F) %>%
+  inner_join(financial_impacts, by = "option_ref") %>%
+  inner_join(option_categories, by = "option_ref")
+
+
+```
+
+```{r}
+one_pager_chart(chart_data)
+```
